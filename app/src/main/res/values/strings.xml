@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Movie Browser</string>
+    <string name="sort_key">sort_pref</string>
+</resources>
