@@ -5,7 +5,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".MovieBrowserMain">
     <item android:id="@+id/settings_menu"
-        android:title="Settings"
+        android:title="@string/txt_settings"
         android:orderInCategory="100"
         app:showAsAction="never">
     </item>

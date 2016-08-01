@@ -1,7 +1,10 @@
 package bkoumtak.udacity.moviebrowser;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -50,7 +53,11 @@ public class PosterFragment extends Fragment {
     public void onStart(){
         super.onStart();
 
-        updateMovieList();
+        if (isOnline()) {
+            updateMovieList();
+        } else{
+            Toast.makeText(getActivity(), "Network Not Found, Cannot Update Data", Toast.LENGTH_LONG).show();
+        }
     }
 
     @Override
@@ -65,21 +72,25 @@ public class PosterFragment extends Fragment {
         GridView gridView = (GridView) rootView.findViewById(R.id.gridview_poster);
         gridView.setAdapter(mMovieAdapter);
 
-        posterTask.execute();
+        if(isOnline()) {
+            posterTask.execute();
 
 
-        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                String title = mMovieAdapter.getItem(i).title;
-                Toast.makeText(getActivity(), title, Toast.LENGTH_LONG).show();
+            gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                    String title = mMovieAdapter.getItem(i).title;
+                    Toast.makeText(getActivity(), title, Toast.LENGTH_LONG).show();
 
-                Intent intent = new Intent(getActivity(), InfoActivity.class);
-                intent.putExtra(EXTRA_MOVIE, mMovieAdapter.getItem(i));
+                    Intent intent = new Intent(getActivity(), InfoActivity.class);
+                    intent.putExtra(EXTRA_MOVIE, mMovieAdapter.getItem(i));
 
-                startActivity(intent);
-            }
-        });
+                    startActivity(intent);
+                }
+            });
+        } else{
+            Toast.makeText(getActivity(), "Network Not Found, Cannot Update Data", Toast.LENGTH_LONG).show();
+        }
 
         return rootView;
     }
@@ -127,6 +138,8 @@ public class PosterFragment extends Fragment {
             String[] moviePosters = {};
 
             String sort_pref = params[0];
+
+
 
             try {
                 // final String QUERY_SORT = "sort_by";
@@ -237,6 +250,14 @@ public class PosterFragment extends Fragment {
             Toast.makeText(getActivity(), "Top Rated Movies", Toast.LENGTH_LONG).show();
         }
 
+    }
+
+    public boolean isOnline() {
+        ConnectivityManager cm =
+                (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+
+        return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 
 }
