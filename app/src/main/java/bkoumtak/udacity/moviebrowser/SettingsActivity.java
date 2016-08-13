@@ -6,6 +6,8 @@ import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
+/** This class is the settings activity class from the Sunshine weather application
+ */
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings.

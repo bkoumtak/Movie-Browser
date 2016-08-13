@@ -73,9 +73,6 @@ public class PosterFragment extends Fragment {
         gridView.setAdapter(mMovieAdapter);
 
         if(isOnline()) {
-            posterTask.execute();
-
-
             gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -95,7 +92,7 @@ public class PosterFragment extends Fragment {
         return rootView;
     }
 
-    public class GetPosterTask extends AsyncTask<String, Void, String[]>{
+    public class GetPosterTask extends AsyncTask<String, Void, ArrayList<Movie>>{
         private final String LOG_TAG = GetPosterTask.class.getSimpleName();
         private final String URL_PATH = "https://api.themoviedb.org/3/movie/";
         private final String API_KEY = "";
@@ -103,29 +100,28 @@ public class PosterFragment extends Fragment {
         private final String TOP_RATED = "top_rated";
 
         @Override
-        protected void onPostExecute(String[] strings) {
+        protected void onPostExecute(ArrayList<Movie> list_of_movies) {
+
+            List<Movie> movieList;
+            movieList = list_of_movies;
             int numAttributes = 5;
-            if (strings != null){
-                List<Movie> movieList = new ArrayList<Movie>();
-
-                for (int i = 0; i < strings.length/numAttributes; i++){
-                    movieList.add(new Movie(strings[i*numAttributes], strings[i*numAttributes+1],
-                            strings[i*numAttributes+2], strings[i*numAttributes+3],
-                            strings[i*numAttributes+4]));
-                }
 
 
-
+            if (list_of_movies != null && list_of_movies.size() == 20) {
                 mMovieAdapter.clear();
                 mMovieAdapter.addAll(movieList);
                 mMovieAdapter.notifyDataSetChanged();
 
-                Log.v(LOG_TAG, ""+movieList.size());
+                Log.v(LOG_TAG, "" + movieList.size());
             }
+
         }
 
         @Override
-        protected String[] doInBackground(String... params) {
+        protected ArrayList<Movie> doInBackground(String... params) {
+
+            ArrayList<Movie> movies;
+            movies = new ArrayList<Movie>();
             //String SORT_PARAM = "popularity.desc";
             if (params.length == 0){
                 return null;
@@ -138,8 +134,6 @@ public class PosterFragment extends Fragment {
             String[] moviePosters = {};
 
             String sort_pref = params[0];
-
-
 
             try {
                 // final String QUERY_SORT = "sort_by";
@@ -183,7 +177,9 @@ public class PosterFragment extends Fragment {
 
                 movieJSONstr = buffer.toString();
 
-                moviePosters = getMoviePoster(movieJSONstr);
+
+                movies = getMoviePoster(movieJSONstr);
+
 
             } catch(IOException e){
                 Log.e(LOG_TAG, "Error", e);
@@ -202,14 +198,12 @@ public class PosterFragment extends Fragment {
                 }
             }
 
-            return moviePosters;
+            return movies;
         }
     }
 
-    private String[] getMoviePoster(String movieJSONstr) throws JSONException{
-
+    private ArrayList<Movie> getMoviePoster(String movieJSONstr) throws JSONException{
         int numMovies = 20;
-        int numAttributes = 5;
         final String MDB_RESULTS = "results";
         final String MDB_POSTERPATH = "poster_path";
         final String MDB_TITLE = "title";
@@ -220,19 +214,20 @@ public class PosterFragment extends Fragment {
         JSONObject movieJSON = new JSONObject(movieJSONstr);
         JSONArray resultsArray  = movieJSON.getJSONArray(MDB_RESULTS);
 
-        String[] movie_posters = new String[numMovies*numAttributes];
+        ArrayList<Movie> movies = new ArrayList<Movie>();
 
         for (int i = 0; i < numMovies; i++){
             JSONObject movieData = resultsArray.getJSONObject(i);
+            String poster_ref = movieData.getString(MDB_POSTERPATH);
+            String title = movieData.getString(MDB_TITLE);
+            String release_date = movieData.getString(MDB_RELEASE_DATE);
+            String vote_avg = Double.toString(movieData.getDouble(MDB_VOTE_AVG));
+            String synopsis = movieData.getString(MDB_SYNOPSIS);
 
-            movie_posters[i*numAttributes] = movieData.getString(MDB_POSTERPATH);
-            movie_posters[i*numAttributes+1] = movieData.getString(MDB_TITLE);
-            movie_posters[i*numAttributes+2] = movieData.getString(MDB_RELEASE_DATE);
-            movie_posters[i*numAttributes+3] = Double.toString(movieData.getDouble(MDB_VOTE_AVG));
-            movie_posters[i*numAttributes+4] = movieData.getString(MDB_SYNOPSIS);
+            movies.add(new Movie(poster_ref, title, release_date, vote_avg, synopsis));
         }
 
-        return movie_posters;
+        return movies;
 
     }
 
