@@ -56,14 +56,12 @@ public class InfoActivity extends ActionBarActivity{
                 Picasso.with(getActivity()).load(baseURL + movieClicked.poster_reference)
                         .into(movie_poster);
 
-                ((TextView)rootView.findViewById(R.id.txt_date)).setText("Release Date: " + release_date);
+                ((TextView)rootView.findViewById(R.id.txt_date)).setText("Release Date: \n" + release_date);
 
                 ((TextView)rootView.findViewById(R.id.txt_vote_avg)).setText("Movie Rating: \n"
                                             + vote_avg + "/10");
 
                 ((TextView)rootView.findViewById(R.id.txt_synopsis)).setText(synopsis);
-
-
 
             }
 

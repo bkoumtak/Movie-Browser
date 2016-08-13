@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+<RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorWhite"
+    >
+
+    <ImageView
+        android:layout_width="280dp"
+        android:layout_height="285dp"
+        android:id="@+id/info_poster"
+        android:layout_below="@id/movie_title"
+        android:layout_marginLeft="10dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="30dp"
+        />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:id="@+id/movie_title"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:gravity="center"
+        android:textColor="@color/colorWhite"
+        android:background="@color/colorPrimary"
+        android:textSize="30sp"
+         />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/txt_date"
+        android:layout_alignTop="@id/info_poster"
+        android:layout_toRightOf="@id/info_poster"
+        android:textSize="30sp"
+        android:textColor="@color/colorPrimary"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/txt_vote_avg"
+        android:layout_alignBottom="@id/info_poster"
+        android:layout_toRightOf="@id/info_poster"
+        android:textSize="30sp"
+        android:textColor="@color/colorPrimary"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/txt_synopsis"
+        android:layout_alignLeft="@id/info_poster"
+        android:layout_alignStart="@id/info_poster"
+        android:layout_below="@+id/txt_vote_avg"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="43dp"
+        android:layout_marginStart="43dp"
+        android:textSize="20sp"
+        android:textColor="@color/colorPrimary"
+        android:textStyle="italic"/>
+
+    </RelativeLayout>
+    </ScrollView>
