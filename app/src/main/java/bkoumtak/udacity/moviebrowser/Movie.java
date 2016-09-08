@@ -11,6 +11,7 @@ public class Movie implements Serializable{
     String release_date;
     String vote_avg;
     String synopsis;
+    String jpeg_file;
 
     public Movie(String poster_reference, String title, String release_date,
                  String vote_avg, String synopsis){
@@ -19,7 +20,7 @@ public class Movie implements Serializable{
         this.release_date = release_date;
         this.vote_avg = vote_avg;
         this.synopsis = synopsis;
-
+        jpeg_file = "filler.jpg";
     }
 
 }

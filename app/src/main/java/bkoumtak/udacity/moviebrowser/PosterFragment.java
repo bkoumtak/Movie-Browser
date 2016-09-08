@@ -3,6 +3,7 @@ package bkoumtak.udacity.moviebrowser;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.AssetManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -38,6 +39,7 @@ public class PosterFragment extends Fragment {
     static final String EXTRA_MOVIE = "bkoumtak.udacity.moviebrowser.EXTRA_MOVIE";
 
     private MovieAdapter mMovieAdapter;
+    private boolean justStarted = true;
 
     public PosterFragment(){
 
@@ -54,10 +56,14 @@ public class PosterFragment extends Fragment {
         super.onStart();
 
         if (isOnline()) {
+            mMovieAdapter.setOfflineMode(false);
             updateMovieList();
         } else{
-            Toast.makeText(getActivity(), "Network Not Found, Cannot Update Data", Toast.LENGTH_LONG).show();
+            if (!justStarted)
+                Toast.makeText(getActivity(), "Network Not Found, Cannot Update Data", Toast.LENGTH_LONG).show();
         }
+
+        justStarted = false;
     }
 
     @Override
@@ -71,23 +77,73 @@ public class PosterFragment extends Fragment {
 
         GridView gridView = (GridView) rootView.findViewById(R.id.gridview_poster);
         gridView.setAdapter(mMovieAdapter);
+        // Delete below if it does not work
 
-        if(isOnline()) {
-            gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                    String title = mMovieAdapter.getItem(i).title;
-                    Toast.makeText(getActivity(), title, Toast.LENGTH_LONG).show();
+        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                String title = mMovieAdapter.getItem(i).title;
+                Toast.makeText(getActivity(), title, Toast.LENGTH_LONG).show();
 
-                    Intent intent = new Intent(getActivity(), InfoActivity.class);
-                    intent.putExtra(EXTRA_MOVIE, mMovieAdapter.getItem(i));
+                Intent intent = new Intent(getActivity(), InfoActivity.class);
+                intent.putExtra(EXTRA_MOVIE, mMovieAdapter.getItem(i));
 
-                    startActivity(intent);
+                startActivity(intent);
+            }
+        });
+
+        if(!isOnline()) {
+            String[] sample_jpeg = {"suicide_squad.jpg", "jason_bourne.jpg", "now_you_see_me_2.jpg",
+            "civil_war.jpg", "boy_next_door.jpg", "mechanic_resurrection.jpg", "jungle_book.jpg",
+            "batman_vs_superman.jpg", "mad_max.jpg", "mockingjay_part1.jpg", "jurassic_world.jpg",
+            "interstellar.jpg", "furious_7.jpg", "deadpool.jpg", "maze_runner.jpg", "conjuring_2.jpg",
+            "terminator_genisys.jpg", "guardians_of_the_galaxy.jpg", "neighbors_2.jpg", "fury.jpg"};
+
+            Toast.makeText(getActivity(), "Network Not Found, Loading Sample List", Toast.LENGTH_LONG).show();
+            AssetManager am = getContext().getAssets();
+
+            //File file  = new File("movieJSON.txt");
+
+            // Read text from file
+            StringBuilder text = new StringBuilder();
+
+            try{
+                InputStream is = am.open("movieJSON.txt");
+                BufferedReader br = new BufferedReader(new InputStreamReader(is));
+                String line;
+
+                while ((line = br.readLine()) != null) {
+                    text.append(line);
+                    text.append('\n');
                 }
-            });
-        } else{
-            Toast.makeText(getActivity(), "Network Not Found, Cannot Update Data", Toast.LENGTH_LONG).show();
+
+                br.close();
+            } catch (IOException e){
+                Log.e("Error","Error", e);
+            }
+
+            ArrayList<Movie> movies = new ArrayList<>();
+
+            try {
+                movies = getMoviePoster(text.toString());
+            } catch(JSONException e){
+                e.printStackTrace();
+            }
+
+            for (int i = 0; i < movies.size(); i++){
+                Log.v("Movies Offline:", movies.get(i).title);
+            }
+
+            for (int i = 0; i < movies.size(); i++){
+                movies.get(i).jpeg_file = sample_jpeg[i];
+            }
+
+            mMovieAdapter.clear();
+            mMovieAdapter.addAll(movies);
+            mMovieAdapter.setOfflineMode(true);
+            mMovieAdapter.notifyDataSetChanged();
         }
+
 
         return rootView;
     }
@@ -95,7 +151,7 @@ public class PosterFragment extends Fragment {
     public class GetPosterTask extends AsyncTask<String, Void, ArrayList<Movie>>{
         private final String LOG_TAG = GetPosterTask.class.getSimpleName();
         private final String URL_PATH = "https://api.themoviedb.org/3/movie/";
-        private final String API_KEY = "";
+        private final String API_KEY = "c7520be353d2a89927b9b5d021cc2d03";
         private final String POP = "popular";
         private final String TOP_RATED = "top_rated";
 
