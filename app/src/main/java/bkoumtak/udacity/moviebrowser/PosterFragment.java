@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -128,6 +129,8 @@ public class PosterFragment extends Fragment {
                 movies = getMoviePoster(text.toString());
             } catch(JSONException e){
                 e.printStackTrace();
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
             }
 
             for (int i = 0; i < movies.size(); i++){
@@ -151,7 +154,7 @@ public class PosterFragment extends Fragment {
     public class GetPosterTask extends AsyncTask<String, Void, ArrayList<Movie>>{
         private final String LOG_TAG = GetPosterTask.class.getSimpleName();
         private final String URL_PATH = "https://api.themoviedb.org/3/movie/";
-        private final String API_KEY = "";
+        private final String API_KEY = "c7520be353d2a89927b9b5d021cc2d03";
         private final String POP = "popular";
         private final String TOP_RATED = "top_rated";
 
@@ -233,6 +236,8 @@ public class PosterFragment extends Fragment {
 
                 movieJSONstr = buffer.toString();
 
+                //-------------------------------------------------------------------------------
+
 
                 movies = getMoviePoster(movieJSONstr);
 
@@ -258,7 +263,7 @@ public class PosterFragment extends Fragment {
         }
     }
 
-    private ArrayList<Movie> getMoviePoster(String movieJSONstr) throws JSONException{
+    private ArrayList<Movie> getMoviePoster(String movieJSONstr) throws JSONException, MalformedURLException {
         int numMovies = 20;
         final String MDB_RESULTS = "results";
         final String MDB_POSTERPATH = "poster_path";
@@ -266,6 +271,21 @@ public class PosterFragment extends Fragment {
         final String MDB_RELEASE_DATE = "release_date";
         final String MDB_VOTE_AVG = "vote_average";
         final String MDB_SYNOPSIS = "overview";
+        final String MDB_ID = "id";
+
+        // For getting the trailers
+        final String URL_PATH = "https://api.themoviedb.org/3/movie/";
+        final String API_KEY = "c7520be353d2a89927b9b5d021cc2d03";
+        final String API_QUERY = "api_key";
+        final String LANGUAGE_QUERY = "language";
+        final String LANGUAGE = "en-US";
+        final String VIDEOS = "videos";
+
+        HttpURLConnection httpURLConnection = null;
+        BufferedReader reader = null;
+
+        String trailerJSON = null;
+
 
         JSONObject movieJSON = new JSONObject(movieJSONstr);
         JSONArray resultsArray  = movieJSON.getJSONArray(MDB_RESULTS);
@@ -273,6 +293,8 @@ public class PosterFragment extends Fragment {
         ArrayList<Movie> movies = new ArrayList<Movie>();
 
         for (int i = 0; i < numMovies; i++){
+
+
             JSONObject movieData = resultsArray.getJSONObject(i);
             String poster_ref = movieData.getString(MDB_POSTERPATH);
             String title = movieData.getString(MDB_TITLE);
@@ -280,11 +302,89 @@ public class PosterFragment extends Fragment {
             String vote_avg = Double.toString(movieData.getDouble(MDB_VOTE_AVG));
             String synopsis = movieData.getString(MDB_SYNOPSIS);
 
-            movies.add(new Movie(poster_ref, title, release_date, vote_avg, synopsis));
+            Uri.Builder builder = Uri.parse(URL_PATH).buildUpon();
+            builder.appendPath(Integer.toString(movieData.getInt(MDB_ID)));
+            builder.appendPath(VIDEOS);
+            builder.appendQueryParameter(API_QUERY, API_KEY);
+            builder.appendQueryParameter(LANGUAGE_QUERY, LANGUAGE);
+
+            URL url = new URL(builder.build().toString());
+
+            try{
+                // Send request to themoviedb and open connection
+                httpURLConnection = (HttpURLConnection) url.openConnection();
+                httpURLConnection.setRequestMethod("GET");
+                httpURLConnection.connect();
+
+                // Read the input stream into a string
+                InputStream inputStream = httpURLConnection.getInputStream();
+                StringBuffer buffer = new StringBuffer();
+                if (inputStream == null){
+                    return null;
+                }
+
+                reader = new BufferedReader(new InputStreamReader(inputStream));
+
+                String line;
+                while ((line = reader.readLine()) != null){
+                    buffer.append(line + "\n");
+                }
+
+                trailerJSON = buffer.toString();
+
+            } catch(IOException e){
+                Log.e("getMoviePoster", "Error", e);
+            } finally {
+                if(httpURLConnection != null){
+                    httpURLConnection.disconnect();
+                }
+                if (reader != null){
+                    try{
+                        reader.close();
+                    } catch (final IOException e) {
+                        Log.e("getMoviePoster", "Error closing stream", e);
+                    }
+                }
+            }
+
+            //Log.v("Testing ID Call: ", trailerJSON);
+
+            String[] trailers;
+            trailers = getTrailers(trailerJSON);
+
+            String list_of_trailers;
+            list_of_trailers = "";
+            for(int j = 0; j < trailers.length; j++){
+                list_of_trailers += trailers[j] +" ";
+            }
+            Log.v("Testing Trailers", list_of_trailers);
+            movies.add(new Movie(poster_ref, title, release_date, vote_avg, synopsis, trailers));
         }
 
         return movies;
 
+    }
+
+    public String[] getTrailers(String trailerJSON){
+        String[] trailers = {};
+        final String resultsStr = "results";
+        final String trailerKey = "key";
+
+        try {
+            JSONObject trailerJSONObj = new JSONObject(trailerJSON);
+            JSONArray trailerJSONArray;
+            trailerJSONArray = trailerJSONObj.getJSONArray(resultsStr);
+            trailers = new String[trailerJSONArray.length()];
+            for(int i = 0; i < trailerJSONArray.length(); i++){
+                JSONObject trailerObj = trailerJSONArray.getJSONObject(i);
+                trailers[i] = trailerObj.getString(trailerKey);
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return trailers;
     }
 
     public void updateMovieList(){

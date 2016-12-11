@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
 
 <RelativeLayout
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
     android:background="@color/colorWhite"
     >
 
@@ -69,5 +69,18 @@
         android:textColor="@color/colorPrimary"
         android:textStyle="italic"/>
 
+
+    <ListView
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="10dp"
+        android:layout_below="@+id/txt_synopsis"
+        android:divider="#000"
+        android:id="@+id/listview_trailers"
+        android:layout_width="wrap_content"
+        android:layout_height="200dp">
+
+    </ListView>
     </RelativeLayout>
+
+
     </ScrollView>
