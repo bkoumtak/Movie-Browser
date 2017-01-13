@@ -1,80 +1,116 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
+<ScrollView
     android:layout_height="match_parent"
-    android:background="@color/colorWhite"
-    >
+    android:layout_width="match_parent"
+    android:id="@+id/scroll_info"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <TextView
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textSize="30sp"
-        android:id="@+id/movie_title"
-        android:background="@color/colorPrimary"
-        android:textColor="@color/colorWhite"
-        android:gravity="center"/>
+        android:layout_height="match_parent"
+        android:background="@color/colorWhite"
+        >
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:id="@+id/movie_heading"
+            android:background="@color/colorWhite">
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textSize="20sp"
+                android:id="@+id/movie_title"
+                android:background="#000000"
+                android:textColor="@color/colorWhite"
+                android:gravity="center"
+                android:layout_weight="3"/>
+            <ImageButton
+                android:id="@+id/favorites_button"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:src = "@drawable/star"
+                android:layout_below="@+id/txt_date"
+                android:layout_toRightOf="@+id/info_poster" />
+        </LinearLayout>
 
-    <ImageView
-        android:layout_width="180dp"
-        android:layout_height="185dp"
-        android:id="@+id/info_poster"
-        android:adjustViewBounds="true"
-        android:layout_below="@+id/movie_title"
-        android:layout_marginTop="30dp"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        <ImageView
+            android:layout_width="180dp"
+            android:layout_height="185dp"
+            android:id="@+id/info_poster"
+            android:adjustViewBounds="true"
+            android:layout_below="@+id/movie_heading"
+            android:layout_marginTop="30dp"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="20sp"
-        android:textColor="@color/colorPrimary"
-        android:gravity="left"
-        android:id="@+id/txt_date"
-        android:layout_alignTop="@+id/info_poster"
-        android:layout_toRightOf="@+id/info_poster"
-        android:layout_toEndOf="@+id/info_poster" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="20sp"
-        android:textColor="@color/colorPrimary"
-        android:gravity="left"
-        android:id="@+id/txt_vote_avg"
-        android:layout_centerVertical="true"
-        android:layout_toRightOf="@+id/info_poster"
-        android:layout_toEndOf="@+id/info_poster" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="12sp"
-        android:textStyle="italic"
-        android:layout_marginTop="30dp"
-        android:id="@+id/txt_synopsis"
-        android:layout_below="@+id/info_poster"
-        android:layout_marginLeft="10dp"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
-
-    <ListView
-        android:layout_marginTop="20dp"
-        android:layout_marginLeft="10dp"
-        android:divider="#000"
-        android:layout_below="@+id/txt_synopsis"
-        android:id="@+id/listview_trailers"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-
-    </ListView>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:textColor="@color/colorPrimary"
+            android:gravity="left"
+            android:id="@+id/txt_date"
+            android:layout_alignTop="@+id/info_poster"
+            android:layout_toRightOf="@+id/info_poster"
+            android:layout_toEndOf="@+id/info_poster" />
 
 
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:textColor="@color/colorPrimary"
+            android:gravity="left"
+            android:id="@+id/txt_vote_avg"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/info_poster"
+            android:layout_toEndOf="@+id/info_poster"
+            android:layout_alignBottom="@+id/info_poster"/>
 
-</RelativeLayout>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:textStyle="italic"
+            android:layout_marginTop="30dp"
+            android:id="@+id/txt_synopsis"
+            android:layout_below="@+id/info_poster"
+            android:layout_marginLeft="10dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
 
+        <ListView
+            android:layout_marginTop="20dp"
+            android:layout_marginLeft="10dp"
+            android:divider="#000"
+            android:layout_below="@+id/btn_reviews"
+            android:id="@+id/listview_trailers"
+            android:layout_width="wrap_content"
+            android:layout_height="140dp"
+            android:background="@color/colorWhite">
+
+        </ListView>
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:id="@+id/btn_reviews"
+            android:text="Reviews"
+            android:textStyle="italic"
+            android:textSize="15sp"
+            android:fontFamily="sans-serif-condensed"
+            android:background="@color/colorPrimary"
+            android:textColor="@color/colorWhite"
+            android:layout_below="@+id/txt_synopsis"
+            android:onClick="getReviews"/>
+
+    </RelativeLayout>
+
+</ScrollView>

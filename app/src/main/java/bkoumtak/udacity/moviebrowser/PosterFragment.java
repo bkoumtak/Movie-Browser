@@ -29,6 +29,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -80,18 +81,21 @@ public class PosterFragment extends Fragment {
         gridView.setAdapter(mMovieAdapter);
         // Delete below if it does not work
 
-        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                String title = mMovieAdapter.getItem(i).title;
-                Toast.makeText(getActivity(), title, Toast.LENGTH_LONG).show();
+        if (isOnline()) {
+            gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                    String title = mMovieAdapter.getItem(i).title;
+                    //Toast.makeText(getActivity(), title, Toast.LENGTH_LONG).show();
 
-                Intent intent = new Intent(getActivity(), InfoActivity.class);
-                intent.putExtra(EXTRA_MOVIE, mMovieAdapter.getItem(i));
+                    Intent intent = new Intent(getActivity(), InfoActivity.class);
+                    intent.putExtra(EXTRA_MOVIE, mMovieAdapter.getItem(i));
 
-                startActivity(intent);
-            }
-        });
+                    startActivity(intent);
+
+                }
+            });
+        }
 
         if(!isOnline()) {
             String[] sample_jpeg = {"suicide_squad.jpg", "jason_bourne.jpg", "now_you_see_me_2.jpg",
@@ -125,6 +129,7 @@ public class PosterFragment extends Fragment {
 
             ArrayList<Movie> movies = new ArrayList<>();
 
+
             try {
                 movies = getMoviePoster(text.toString());
             } catch(JSONException e){
@@ -154,7 +159,7 @@ public class PosterFragment extends Fragment {
     public class GetPosterTask extends AsyncTask<String, Void, ArrayList<Movie>>{
         private final String LOG_TAG = GetPosterTask.class.getSimpleName();
         private final String URL_PATH = "https://api.themoviedb.org/3/movie/";
-        private final String API_KEY = "c7520be353d2a89927b9b5d021cc2d03";
+        private final String API_KEY = "";
         private final String POP = "popular";
         private final String TOP_RATED = "top_rated";
 
@@ -163,7 +168,6 @@ public class PosterFragment extends Fragment {
 
             List<Movie> movieList;
             movieList = list_of_movies;
-            int numAttributes = 5;
 
 
             if (list_of_movies != null && list_of_movies.size() == 20) {
@@ -275,17 +279,21 @@ public class PosterFragment extends Fragment {
 
         // For getting the trailers
         final String URL_PATH = "https://api.themoviedb.org/3/movie/";
-        final String API_KEY = "c7520be353d2a89927b9b5d021cc2d03";
+        final String API_KEY = "";
         final String API_QUERY = "api_key";
         final String LANGUAGE_QUERY = "language";
         final String LANGUAGE = "en-US";
         final String VIDEOS = "videos";
+        final String REVIEWS = "reviews";
 
         HttpURLConnection httpURLConnection = null;
         BufferedReader reader = null;
 
         String trailerJSON = null;
+        String reviewJSON = null;
 
+        String[] trailers;
+        Review[] reviews;
 
         JSONObject movieJSON = new JSONObject(movieJSONstr);
         JSONArray resultsArray  = movieJSON.getJSONArray(MDB_RESULTS);
@@ -308,61 +316,163 @@ public class PosterFragment extends Fragment {
             builder.appendQueryParameter(API_QUERY, API_KEY);
             builder.appendQueryParameter(LANGUAGE_QUERY, LANGUAGE);
 
+            Uri.Builder review_builder = Uri.parse(URL_PATH).buildUpon();
+            review_builder.appendPath(Integer.toString(movieData.getInt(MDB_ID)));
+            review_builder.appendPath(REVIEWS);
+            review_builder.appendQueryParameter(API_QUERY, API_KEY);
+
             URL url = new URL(builder.build().toString());
+            URL review_url = new URL(review_builder.build().toString());
 
-            try{
-                // Send request to themoviedb and open connection
-                httpURLConnection = (HttpURLConnection) url.openConnection();
-                httpURLConnection.setRequestMethod("GET");
-                httpURLConnection.connect();
+            if (isOnline()) {
+                try {
+                    httpURLConnection = (HttpURLConnection) url.openConnection();
+                    httpURLConnection.setRequestMethod("GET");
+                    httpURLConnection.connect();
 
-                // Read the input stream into a string
-                InputStream inputStream = httpURLConnection.getInputStream();
-                StringBuffer buffer = new StringBuffer();
-                if (inputStream == null){
-                    return null;
-                }
+                    InputStream inputStream = httpURLConnection.getInputStream();
+                    StringBuffer buffer = new StringBuffer();
+                    if (inputStream == null) {
+                        return null;
+                    }
 
-                reader = new BufferedReader(new InputStreamReader(inputStream));
+                    reader = new BufferedReader(new InputStreamReader(inputStream));
 
-                String line;
-                while ((line = reader.readLine()) != null){
-                    buffer.append(line + "\n");
-                }
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        buffer.append(line + "\n");
+                    }
 
-                trailerJSON = buffer.toString();
-
-            } catch(IOException e){
-                Log.e("getMoviePoster", "Error", e);
-            } finally {
-                if(httpURLConnection != null){
-                    httpURLConnection.disconnect();
-                }
-                if (reader != null){
-                    try{
-                        reader.close();
-                    } catch (final IOException e) {
-                        Log.e("getMoviePoster", "Error closing stream", e);
+                    trailerJSON = buffer.toString();
+                } catch (ProtocolException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } finally {
+                    if (httpURLConnection != null) {
+                        httpURLConnection.disconnect();
+                    }
+                    if (reader != null) {
+                        try {
+                            reader.close();
+                        } catch (final IOException e) {
+                            Log.e("getMoviePoster", "Error closing stream", e);
+                        }
                     }
                 }
+
+                try {
+                    // Send request to themoviedb and open connection
+                    httpURLConnection = (HttpURLConnection) review_url.openConnection();
+                    httpURLConnection.setRequestMethod("GET");
+                    httpURLConnection.connect();
+
+                    // Read the input stream into a string
+                    InputStream inputStream = httpURLConnection.getInputStream();
+                    StringBuffer buffer = new StringBuffer();
+                    if (inputStream == null) {
+                        return null;
+                    }
+
+                    reader = new BufferedReader(new InputStreamReader(inputStream));
+
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        buffer.append(line + "\n");
+                    }
+
+                    reviewJSON = buffer.toString();
+
+                } catch (IOException e) {
+                    Log.e("getReviews", "Error", e);
+                } finally {
+                    if (httpURLConnection != null) {
+                        httpURLConnection.disconnect();
+                    }
+                    if (reader != null) {
+                        try {
+                            reader.close();
+                        } catch (final IOException e) {
+                            Log.e("getMoviePoster", "Error closing stream", e);
+                        }
+                    }
+                }
+
+
+                //Log.v("Testing ID Call: ", trailerJSON);
+
+                trailers = getTrailers(trailerJSON);
+
+                reviews = getReviews(reviewJSON);
+
+                String review_authors = "";
+
+
+                if (reviews != null) {
+                    for (int j = 0; j < reviews.length; j++) {
+                        review_authors += reviews[j].author;
+                    }
+
+                    Log.v("Testing Reviews", review_authors);
+                }
+                Log.v("Title: ", title);
+
+                String list_of_trailers;
+                list_of_trailers = "";
+                for (int j = 0; j < trailers.length; j++) {
+                    list_of_trailers += trailers[j] + " ";
+                }
+                Log.v("Testing Trailers", list_of_trailers);
+            }
+            else{
+                trailers = null;
+                reviews = null;
+
             }
 
-            //Log.v("Testing ID Call: ", trailerJSON);
-
-            String[] trailers;
-            trailers = getTrailers(trailerJSON);
-
-            String list_of_trailers;
-            list_of_trailers = "";
-            for(int j = 0; j < trailers.length; j++){
-                list_of_trailers += trailers[j] +" ";
-            }
-            Log.v("Testing Trailers", list_of_trailers);
-            movies.add(new Movie(poster_ref, title, release_date, vote_avg, synopsis, trailers));
+            movies.add(new Movie(poster_ref, title, release_date, vote_avg, synopsis, trailers, reviews));
         }
 
         return movies;
 
+    }
+
+    public Review[] getReviews(String reviewJSON){
+        final String MDB_REVIEW_ID = "id";
+
+        Review[] reviews = {};
+        final String resultsStr = "results";
+        final String MDB_AUTHOR = "author";
+        final String MDB_CONTENT = "content";
+        final String MDB_TOTAL_RESULTS = "total_results";
+
+
+        try{
+            JSONObject reviewJSONObj = new JSONObject(reviewJSON);
+            JSONArray reviewJSONArray;
+            reviewJSONArray = reviewJSONObj.getJSONArray(resultsStr);
+            int total_results = reviewJSONObj.getInt(MDB_TOTAL_RESULTS);
+
+            if(total_results == 0)
+                reviews = null;
+            else {
+                reviews = new Review[reviewJSONArray.length()];
+                for (int i = 0; i < reviewJSONArray.length(); i++) {
+                    JSONObject reviewObj = reviewJSONArray.getJSONObject(i);
+                    reviews[i] = new Review(reviewObj.getString(MDB_REVIEW_ID),
+                            reviewObj.getString(MDB_AUTHOR),
+                            reviewObj.getString(MDB_CONTENT));
+
+                }
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Log.v("error", "can't find review");
+
+        }
+
+        return reviews;
     }
 
     public String[] getTrailers(String trailerJSON){

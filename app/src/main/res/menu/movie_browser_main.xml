@@ -9,5 +9,9 @@
         android:orderInCategory="100"
         app:showAsAction="never">
     </item>
+    <item android:id="@+id/favorites_menu"
+        android:title="Favorites"
+        android:orderInCategory="200">
+    </item>
 
 </menu>

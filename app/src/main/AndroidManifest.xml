@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="bkoumtak.udacity.moviebrowser">
 
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
@@ -19,27 +19,41 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".SettingsActivity"
             android:label="Settings"
-            android:parentActivityName=".MovieBrowserMain"
-            >
+            android:parentActivityName=".MovieBrowserMain">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="bkoumtak.udacity.moviebrowser.MovieBrowserMain"/>
+                android:value="bkoumtak.udacity.moviebrowser.MovieBrowserMain" />
         </activity>
         <activity
             android:name=".InfoActivity"
             android:label="Movie Info"
-            android:parentActivityName=".MovieBrowserMain">
+            android:parentActivityName=".MovieBrowserMain"
+            android:launchMode="singleTop">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="bkoumtak.udacity.moviebrowser.MovieBrowserMain"/>
-
+                android:value="bkoumtak.udacity.moviebrowser.MovieBrowserMain" />
         </activity>
-
+        <activity android:name=".ReviewActivity"
+            android:theme="@style/ReviewTheme"
+            android:parentActivityName=".InfoActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="bkoumtak.udacity.moviebrowser.InfoActivity" />
+        </activity>
+        <activity android:name=".FavoritesActivity"
+            android:parentActivityName=".MovieBrowserMain"
+            android:label="@string/favorites_header">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="bkoumtak.udacity.moviebrowser.FavoritesActivity"/>
+        </activity>
+        <provider
+            android:authorities="bkoumtak.udacity.moviebrowser.data.FavoritesProvider"
+            android:name="bkoumtak.udacity.moviebrowser.data.generated.FavoritesProvider"
+            android:exported="false"/>
     </application>
-
 
 </manifest>

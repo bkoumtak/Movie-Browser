@@ -35,6 +35,11 @@ public class MovieBrowserMain extends ActionBarActivity{
             startActivity(settingsIntent);
             return true;
         }
+        else if (id == R.id.favorites_menu){
+            Intent favoritesIntent = new Intent(this, FavoritesActivity.class);
+            startActivity(favoritesIntent);
+            return true;
+        }
 
         return super.onOptionsItemSelected(item);
     }

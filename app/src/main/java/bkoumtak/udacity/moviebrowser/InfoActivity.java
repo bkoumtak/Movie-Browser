@@ -1,9 +1,14 @@
 package bkoumtak.udacity.moviebrowser;
 
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
@@ -12,6 +17,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -22,10 +28,17 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
+import bkoumtak.udacity.moviebrowser.data.FavoritesColumns;
+import bkoumtak.udacity.moviebrowser.data.FavoritesProvider;
+
 /**
  * Created by kondeelai on 2016-07-29.
  */
 public class InfoActivity extends ActionBarActivity{
+    InfoMovieAdapter infoMovieAdapter;
+
+    ViewPager mInfoPager;
+
     public InfoActivity () {
 
     }
@@ -34,13 +47,41 @@ public class InfoActivity extends ActionBarActivity{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        /*
+        setContentView(R.layout.info_pager);
+
+        mInfoPager = (ViewPager)findViewById(R.id.info_pager);
+
+        infoMovieAdapter = new InfoMovieAdapter(getSupportFragmentManager());
+
+        mInfoPager.setAdapter(infoMovieAdapter);*/
+
         setContentView(R.layout.activity_info);
+
 
         if (savedInstanceState == null){
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.container, new InfoFragment())
                     .commit();
         }
+    }
+
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+        findViewById(R.id.scroll_info).scrollTo(0,0);
+    }
+
+    public void getReviews(View view) {
+        Intent review_intent = new Intent(this, ReviewActivity.class);
+        Intent intent = getIntent();
+        if (intent != null && intent.hasExtra(PosterFragment.EXTRA_MOVIE)){
+            Movie movieClicked = (Movie) intent.getSerializableExtra(PosterFragment.EXTRA_MOVIE);
+            review_intent.putExtra(PosterFragment.EXTRA_MOVIE, movieClicked);
+
+            startActivity(review_intent);
+        }
+
 
     }
 
@@ -57,11 +98,13 @@ public class InfoActivity extends ActionBarActivity{
                 ListView trailerListView;
                 String baseURL = "http://image.tmdb.org/t/p/w185";
                 Movie movieClicked = (Movie) intent.getSerializableExtra(PosterFragment.EXTRA_MOVIE);
-                String movie_title = movieClicked.title;
+                final String movie_title = movieClicked.title;
                 String release_date = movieClicked.release_date;
-                String vote_avg = movieClicked.vote_avg;
-                String synopsis = movieClicked.synopsis;
+                final String vote_avg = movieClicked.vote_avg;
+                final String synopsis = movieClicked.synopsis;
                 String[] trailers = movieClicked.trailers;
+                Review[] reviews = movieClicked.reviews;
+
                 final ArrayList<Trailer> trailerObjects = new ArrayList<Trailer>();
 
                 ImageView movie_poster = (ImageView)rootView.findViewById(R.id.info_poster);
@@ -113,10 +156,110 @@ public class InfoActivity extends ActionBarActivity{
                         Toast.makeText(getContext(), yt_link, Toast.LENGTH_LONG).show();
                     }
                 });
+
+                ImageButton favoritesButton = (ImageButton)rootView.findViewById(R.id.favorites_button);
+
+                favoritesButton.setOnClickListener(new View.OnClickListener(){
+                    public void onClick(View v){
+                        Uri favoritesUri = FavoritesProvider.Favorites.CONTENT_URI;
+                        String[] PROJECTION = {FavoritesColumns.TITLE};
+                        String SELECTION = FavoritesColumns.TITLE + " LIKE ?";
+                        String[] selectionArgs = {movie_title};
+
+
+                        Cursor cursor = getContext().getContentResolver().query(favoritesUri,
+                                PROJECTION,
+                                SELECTION,
+                                selectionArgs,
+                                null);
+
+                        if (cursor.getCount() == 0) {
+                            Toast.makeText(getContext(), movie_title + " added to favorites!", Toast.LENGTH_LONG).show();
+
+                            ContentValues contentValues = new ContentValues();
+
+                            contentValues.put(FavoritesColumns.TITLE, movie_title);
+                            contentValues.put(FavoritesColumns.RATING, vote_avg);
+                            contentValues.put(FavoritesColumns.SYNOPSIS, synopsis);
+
+                            getContext().getContentResolver().insert(favoritesUri,
+                                    contentValues);
+                        } else{
+                            getContext().getContentResolver().delete(favoritesUri,
+                                    FavoritesColumns.TITLE + " = ?", selectionArgs);
+                            Toast.makeText(getContext(), movie_title + " deleted from favorites",
+                                    Toast.LENGTH_LONG).show();
+                        }
+                    }
+                });
             }
 
             return rootView;
         }
+    }
+
+    public static class ReviewFragment extends Fragment{
+        public static final String REVIEW_NUMBER = "review_number";
+        public static final String REVIEW_NULL = "review_null";
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container,  Bundle savedInstanceState) {
+            View rootView = inflater.inflate(R.layout.review_fragment, container, false);
+
+
+            Movie movieClicked = (Movie) getArguments().getSerializable(PosterFragment.EXTRA_MOVIE);
+            int index = getArguments().getInt(REVIEW_NUMBER);
+
+            boolean no_reviews = getArguments().getBoolean(REVIEW_NULL);
+
+            if (!no_reviews) {
+                TextView review_content;
+                TextView review_author;
+
+                review_author = (TextView) rootView.findViewById(R.id.review_author);
+                review_content = (TextView) rootView.findViewById(R.id.review_content);
+                review_content.setText(movieClicked.reviews[index].content);
+                review_author.setText("Reviewer:  " + movieClicked.reviews[index].author);
+            }
+            /*
+            Intent intent = getActivity().getIntent();
+            TextView review_content;
+
+            if(intent != null && intent.hasExtra(PosterFragment.EXTRA_MOVIE) ){
+                Movie movieClicked = (Movie) intent.getSerializableExtra(PosterFragment.EXTRA_MOVIE);
+                Review reviews[] = movieClicked.reviews;
+
+                review_content = (TextView) rootView.findViewById(R.id.review_content);
+
+
+                if(reviews != null)
+                    review_content.setText(reviews[0].content);
+                else
+                    review_content.setText("This movie currently has no reviews.");
+
+            }*/
+
+
+            return rootView;
+        }
+
+    }
+    public static class InfoMovieAdapter extends FragmentPagerAdapter {
+        public InfoMovieAdapter(FragmentManager fm){ super(fm);}
+
+        @Override
+        public Fragment getItem(int position) {
+            switch(position){
+                case 0:
+                    return new InfoFragment();
+
+                default:
+                    return new ReviewFragment();
+            }
+        }
+
+        @Override
+        public int getCount() {return 2; }
     }
 
     /**** Method for Setting the Height of the ListView dynamically.
