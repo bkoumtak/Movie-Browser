@@ -159,7 +159,7 @@ public class PosterFragment extends Fragment {
     public class GetPosterTask extends AsyncTask<String, Void, ArrayList<Movie>>{
         private final String LOG_TAG = GetPosterTask.class.getSimpleName();
         private final String URL_PATH = "https://api.themoviedb.org/3/movie/";
-        private final String API_KEY = "c7520be353d2a89927b9b5d021cc2d03";
+        private final String API_KEY = "";
         private final String POP = "popular";
         private final String TOP_RATED = "top_rated";
 
@@ -279,7 +279,7 @@ public class PosterFragment extends Fragment {
 
         // For getting the trailers
         final String URL_PATH = "https://api.themoviedb.org/3/movie/";
-        final String API_KEY = "c7520be353d2a89927b9b5d021cc2d03";
+        final String API_KEY = "";
         final String API_QUERY = "api_key";
         final String LANGUAGE_QUERY = "language";
         final String LANGUAGE = "en-US";
