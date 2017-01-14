@@ -101,6 +101,7 @@ public class InfoActivity extends ActionBarActivity{
         @Override
         public View onCreateView(LayoutInflater inflater,
                                  ViewGroup container,Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
 
             View rootView = inflater.inflate(R.layout.info_fragment, container, false);
             //Intent intent = getActivity().getIntent();
@@ -173,13 +174,16 @@ public class InfoActivity extends ActionBarActivity{
 
                 ImageButton favoritesButton = (ImageButton)rootView.findViewById(R.id.favorites_button);
 
+
                 Button reviewButton = (Button)rootView.findViewById(R.id.btn_reviews);
-                reviewButton.setOnClickListener(new View.OnClickListener(){
-                    @Override
-                    public void onClick(View view) {
-                        getReviews(movieClicked);
-                    }
-                });
+                if(reviewButton != null) {
+                    reviewButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            getReviews(movieClicked);
+                        }
+                    });
+                }
 
                 favoritesButton.setOnClickListener(new View.OnClickListener(){
                     public void onClick(View v){
