@@ -1,7 +1,6 @@
 package bkoumtak.udacity.moviebrowser;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.net.ConnectivityManager;
@@ -85,13 +84,14 @@ public class PosterFragment extends Fragment {
             gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                    String title = mMovieAdapter.getItem(i).title;
-                    //Toast.makeText(getActivity(), title, Toast.LENGTH_LONG).show();
 
+                    ((Callback)getActivity())
+                            .onItemSelected(mMovieAdapter.getItem(i));
+                    /*
                     Intent intent = new Intent(getActivity(), InfoActivity.class);
                     intent.putExtra(EXTRA_MOVIE, mMovieAdapter.getItem(i));
 
-                    startActivity(intent);
+                    startActivity(intent);*/
 
                 }
             });
@@ -159,7 +159,7 @@ public class PosterFragment extends Fragment {
     public class GetPosterTask extends AsyncTask<String, Void, ArrayList<Movie>>{
         private final String LOG_TAG = GetPosterTask.class.getSimpleName();
         private final String URL_PATH = "https://api.themoviedb.org/3/movie/";
-        private final String API_KEY = "";
+        private final String API_KEY = "c7520be353d2a89927b9b5d021cc2d03";
         private final String POP = "popular";
         private final String TOP_RATED = "top_rated";
 
@@ -279,7 +279,7 @@ public class PosterFragment extends Fragment {
 
         // For getting the trailers
         final String URL_PATH = "https://api.themoviedb.org/3/movie/";
-        final String API_KEY = "";
+        final String API_KEY = "c7520be353d2a89927b9b5d021cc2d03";
         final String API_QUERY = "api_key";
         final String LANGUAGE_QUERY = "language";
         final String LANGUAGE = "en-US";
@@ -519,6 +519,10 @@ public class PosterFragment extends Fragment {
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
 
         return netInfo != null && netInfo.isConnectedOrConnecting();
+    }
+
+    public interface Callback {
+        public void onItemSelected(Movie movieParam);
     }
 
 }

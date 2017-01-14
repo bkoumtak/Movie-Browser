@@ -17,6 +17,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
@@ -60,8 +61,17 @@ public class InfoActivity extends ActionBarActivity{
 
 
         if (savedInstanceState == null){
+
+            Bundle args = new Bundle();
+            args.putSerializable(PosterFragment.EXTRA_MOVIE, getIntent().getSerializableExtra(
+                    PosterFragment.EXTRA_MOVIE
+            ));
+
+            InfoFragment infoFragment = new InfoFragment();
+            infoFragment.setArguments(args);
+
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new InfoFragment())
+                    .add(R.id.info_container, infoFragment)
                     .commit();
         }
     }
@@ -72,6 +82,7 @@ public class InfoActivity extends ActionBarActivity{
         findViewById(R.id.scroll_info).scrollTo(0,0);
     }
 
+    /*
     public void getReviews(View view) {
         Intent review_intent = new Intent(this, ReviewActivity.class);
         Intent intent = getIntent();
@@ -82,8 +93,9 @@ public class InfoActivity extends ActionBarActivity{
             startActivity(review_intent);
         }
 
+    }*/
 
-    }
+
 
     public static class InfoFragment extends Fragment{
         @Override
@@ -91,13 +103,15 @@ public class InfoActivity extends ActionBarActivity{
                                  ViewGroup container,Bundle savedInstanceState) {
 
             View rootView = inflater.inflate(R.layout.info_fragment, container, false);
-            Intent intent = getActivity().getIntent();
+            //Intent intent = getActivity().getIntent();
+
+            Bundle args = getArguments();
 
 
-            if (intent != null && intent.hasExtra(PosterFragment.EXTRA_MOVIE)){
+            if (args != null){
                 ListView trailerListView;
                 String baseURL = "http://image.tmdb.org/t/p/w185";
-                Movie movieClicked = (Movie) intent.getSerializableExtra(PosterFragment.EXTRA_MOVIE);
+                final Movie movieClicked = (Movie) args.getSerializable(PosterFragment.EXTRA_MOVIE);
                 final String movie_title = movieClicked.title;
                 String release_date = movieClicked.release_date;
                 final String vote_avg = movieClicked.vote_avg;
@@ -159,6 +173,14 @@ public class InfoActivity extends ActionBarActivity{
 
                 ImageButton favoritesButton = (ImageButton)rootView.findViewById(R.id.favorites_button);
 
+                Button reviewButton = (Button)rootView.findViewById(R.id.btn_reviews);
+                reviewButton.setOnClickListener(new View.OnClickListener(){
+                    @Override
+                    public void onClick(View view) {
+                        getReviews(movieClicked);
+                    }
+                });
+
                 favoritesButton.setOnClickListener(new View.OnClickListener(){
                     public void onClick(View v){
                         Uri favoritesUri = FavoritesProvider.Favorites.CONTENT_URI;
@@ -195,6 +217,13 @@ public class InfoActivity extends ActionBarActivity{
             }
 
             return rootView;
+        }
+
+        public void getReviews(Movie movieClicked){
+            Intent review_intent = new Intent(getActivity(), ReviewActivity.class);
+            review_intent.putExtra(PosterFragment.EXTRA_MOVIE, movieClicked);
+
+            startActivity(review_intent);
         }
     }
 
