@@ -48,15 +48,6 @@ public class InfoActivity extends ActionBarActivity{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        /*
-        setContentView(R.layout.info_pager);
-
-        mInfoPager = (ViewPager)findViewById(R.id.info_pager);
-
-        infoMovieAdapter = new InfoMovieAdapter(getSupportFragmentManager());
-
-        mInfoPager.setAdapter(infoMovieAdapter);*/
-
         setContentView(R.layout.activity_info);
 
 
@@ -81,21 +72,6 @@ public class InfoActivity extends ActionBarActivity{
         super.onPostResume();
         findViewById(R.id.scroll_info).scrollTo(0,0);
     }
-
-    /*
-    public void getReviews(View view) {
-        Intent review_intent = new Intent(this, ReviewActivity.class);
-        Intent intent = getIntent();
-        if (intent != null && intent.hasExtra(PosterFragment.EXTRA_MOVIE)){
-            Movie movieClicked = (Movie) intent.getSerializableExtra(PosterFragment.EXTRA_MOVIE);
-            review_intent.putExtra(PosterFragment.EXTRA_MOVIE, movieClicked);
-
-            startActivity(review_intent);
-        }
-
-    }*/
-
-
 
     public static class InfoFragment extends Fragment{
         @Override

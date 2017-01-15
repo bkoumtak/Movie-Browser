@@ -8,12 +8,12 @@
     android:divider="?android:attr/dividerHorizontal"
     android:orientation="horizontal"
     tools:context=".MovieBrowserMain">
-    <fragment
-        android:id="@+id/poster_fragment"
+    <FrameLayout
+        android:id="@+id/poster_container"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:name="bkoumtak.udacity.moviebrowser.PosterFragment"
         android:layout_weight="2"
+        tools:ignore="MergeRootFrame"
         />
     <LinearLayout
         android:layout_width="0dp"

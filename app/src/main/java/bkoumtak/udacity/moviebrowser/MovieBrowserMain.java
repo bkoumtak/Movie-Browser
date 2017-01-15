@@ -12,6 +12,7 @@ public class MovieBrowserMain extends ActionBarActivity implements PosterFragmen
 
     private static final String INFOFRAGMENT_TAG = "INFOTAG";
     private static final String REVIEWFRAGMENT_TAG = "REVIEWTAG";
+    private static final String POSTERFRAGMENT_TAG = "POSTERTAG";
 
     private boolean mTwoPane;
 
@@ -38,6 +39,12 @@ public class MovieBrowserMain extends ActionBarActivity implements PosterFragmen
             mTwoPane = false;
         }
 
+        if (savedInstanceState == null){
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.poster_container, new PosterFragment(), POSTERFRAGMENT_TAG)
+                    .commit();
+        }
+
     }
 
     @Override
@@ -56,8 +63,15 @@ public class MovieBrowserMain extends ActionBarActivity implements PosterFragmen
             return true;
         }
         else if (id == R.id.favorites_menu){
+            /*
             Intent favoritesIntent = new Intent(this, FavoritesActivity.class);
-            startActivity(favoritesIntent);
+            startActivity(favoritesIntent);*/
+
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.poster_container, new FavoritesFragment(), POSTERFRAGMENT_TAG)
+                    .addToBackStack("To PosterFragment")
+                    .commit();
+
             return true;
         }
 
