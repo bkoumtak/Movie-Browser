@@ -11,6 +11,7 @@ import android.widget.Toast;
 public class MovieBrowserMain extends ActionBarActivity implements PosterFragment.Callback{
 
     private static final String INFOFRAGMENT_TAG = "INFOTAG";
+    private static final String REVIEWFRAGMENT_TAG = "REVIEWTAG";
 
     private boolean mTwoPane;
 
@@ -27,17 +28,16 @@ public class MovieBrowserMain extends ActionBarActivity implements PosterFragmen
                         .add(R.id.info_container, new Fragment(), INFOFRAGMENT_TAG)
                         .commit();
 
+                getSupportFragmentManager().beginTransaction()
+                        .add(R.id.review_container, new Fragment(), REVIEWFRAGMENT_TAG)
+                        .commit();
+
                 Toast.makeText(this, "Tablet Mode", Toast.LENGTH_LONG).show();
             }
         } else {
             mTwoPane = false;
         }
-        /*
-        if (savedInstanceState == null){
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new PosterFragment())
-                    .commit();
-        }*/
+
     }
 
     @Override
@@ -74,9 +74,30 @@ public class MovieBrowserMain extends ActionBarActivity implements PosterFragmen
             InfoActivity.InfoFragment infoFragment = new InfoActivity.InfoFragment();
             infoFragment.setArguments(args);
 
+            boolean no_reviews;
+
+            if (movieParam.reviews == null)
+                no_reviews = true;
+            else
+                no_reviews = false;
+
+            Bundle review_args = new Bundle();
+            review_args.putSerializable(PosterFragment.EXTRA_MOVIE, movieParam);
+            review_args.putBoolean(InfoActivity.ReviewFragment.REVIEW_NULL, no_reviews);
+            review_args.putBoolean(InfoActivity.ReviewFragment.TWOPANE_MODE, true);
+
+            InfoActivity.ReviewFragment reviewFragment = new InfoActivity.ReviewFragment();
+            reviewFragment.setArguments(review_args);
+
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.info_container, infoFragment, INFOFRAGMENT_TAG)
                     .commit();
+
+
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.review_container, reviewFragment, REVIEWFRAGMENT_TAG)
+                    .commit();
+
         } else {
             Intent intent = new Intent(this, InfoActivity.class);
             intent.putExtra(PosterFragment.EXTRA_MOVIE, movieParam);

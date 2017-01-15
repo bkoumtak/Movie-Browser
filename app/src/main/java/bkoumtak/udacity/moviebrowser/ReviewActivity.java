@@ -81,6 +81,7 @@ public class ReviewActivity extends AppCompatActivity{
                     args.putSerializable(PosterFragment.EXTRA_MOVIE, movieClicked);
                     args.putInt(InfoActivity.ReviewFragment.REVIEW_NUMBER, position);
                     args.putBoolean(InfoActivity.ReviewFragment.REVIEW_NULL, no_reviews);
+                    args.putBoolean(InfoActivity.ReviewFragment.TWOPANE_MODE, false);
                     fragment.setArguments(args);
                     return fragment;
             }

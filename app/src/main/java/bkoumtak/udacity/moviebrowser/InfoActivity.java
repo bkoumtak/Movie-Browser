@@ -234,6 +234,7 @@ public class InfoActivity extends ActionBarActivity{
     public static class ReviewFragment extends Fragment{
         public static final String REVIEW_NUMBER = "review_number";
         public static final String REVIEW_NULL = "review_null";
+        public static final String TWOPANE_MODE = "two_pane";
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,  Bundle savedInstanceState) {
@@ -241,36 +242,42 @@ public class InfoActivity extends ActionBarActivity{
 
 
             Movie movieClicked = (Movie) getArguments().getSerializable(PosterFragment.EXTRA_MOVIE);
-            int index = getArguments().getInt(REVIEW_NUMBER);
+            int index = 0;
+            boolean twoPane = getArguments().getBoolean(TWOPANE_MODE);
+
+            if (!twoPane)
+                index = getArguments().getInt(REVIEW_NUMBER);
 
             boolean no_reviews = getArguments().getBoolean(REVIEW_NULL);
 
-            if (!no_reviews) {
+            if(twoPane){
                 TextView review_content;
-                TextView review_author;
-
-                review_author = (TextView) rootView.findViewById(R.id.review_author);
                 review_content = (TextView) rootView.findViewById(R.id.review_content);
-                review_content.setText(movieClicked.reviews[index].content);
-                review_author.setText("Reviewer:  " + movieClicked.reviews[index].author);
+                if(!no_reviews){
+
+                    for (int i = 0; i < movieClicked.reviews.length; i++){
+                        review_content.append("Reviewer: " + movieClicked.reviews[i].author +
+                                            "\n \n" + movieClicked.reviews[i].content +
+                                            "\n \n");
+                        review_content.append("------------------------------------------------" +
+                                "--------------------------------------------------------------\n");
+                    }
+
+                } else{
+                    review_content.setText("There are currently no reviews in the database.");
+                }
             }
-            /*
-            Intent intent = getActivity().getIntent();
-            TextView review_content;
+            else {
+                if (!no_reviews) {
+                    TextView review_content;
+                    TextView review_author;
 
-            if(intent != null && intent.hasExtra(PosterFragment.EXTRA_MOVIE) ){
-                Movie movieClicked = (Movie) intent.getSerializableExtra(PosterFragment.EXTRA_MOVIE);
-                Review reviews[] = movieClicked.reviews;
-
-                review_content = (TextView) rootView.findViewById(R.id.review_content);
-
-
-                if(reviews != null)
-                    review_content.setText(reviews[0].content);
-                else
-                    review_content.setText("This movie currently has no reviews.");
-
-            }*/
+                    review_author = (TextView) rootView.findViewById(R.id.review_author);
+                    review_content = (TextView) rootView.findViewById(R.id.review_content);
+                    review_content.setText(movieClicked.reviews[index].content);
+                    review_author.setText("Reviewer:  " + movieClicked.reviews[index].author);
+                }
+            }
 
 
             return rootView;

@@ -90,14 +90,12 @@
             android:layout_alignParentStart="true" />
 
         <ListView
-            android:layout_marginTop="20dp"
-            android:layout_marginLeft="10dp"
-            android:divider="#000"
+            android:layout_margin="10dp"
             android:layout_below="@+id/btn_reviews"
             android:id="@+id/listview_trailers"
             android:layout_width="wrap_content"
             android:layout_height="140dp"
-            android:background="@color/colorWhite">
+            android:background="@drawable/list_divider">
 
         </ListView>
 
